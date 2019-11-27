@@ -1,14 +1,22 @@
 package es.iessaladillo.pedrojoya.pr04.ui.main
 
+import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.text.Layout
+import android.view.LayoutInflater
+import android.view.View
+import androidx.core.content.ContextCompat.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.material.snackbar.Snackbar
 import es.iessaladillo.pedrojoya.pr04.R
 import es.iessaladillo.pedrojoya.pr04.base.Event
 import es.iessaladillo.pedrojoya.pr04.data.Repository
 import es.iessaladillo.pedrojoya.pr04.data.entity.Task
+import kotlinx.android.synthetic.main.tasks_activity.*
+import kotlinx.android.synthetic.main.tasks_activity_item.*
 
 class TasksActivityViewModel(private val repository: Repository,
                              private val application: Application) : ViewModel() {
@@ -51,21 +59,53 @@ class TasksActivityViewModel(private val repository: Repository,
     val onShowTaskDeleted: LiveData<Event<Task>>
         get() = _onShowTaskDeleted
 
+    init {
+
+        _tasks.value = repository.queryAllTasks().toList()
+
+    }
+
+    var lista: List<Task> = _tasks.value as List<Task>
+
     // ACTION METHODS
 
     // Hace que se muestre en el RecyclerView todas las tareas.
     fun filterAll() {
-        // TODO
+
+        lista = repository.queryAllTasks()
+
+        _currentFilter.value = TasksActivityFilter.ALL
+
+        _currentFilterMenuItemId.value = R.id.mnuFilterAll
+
+        _tasks.value = lista.sortedByDescending { it.id }
+
     }
 
     // Hace que se muestre en el RecyclerView sólo las tareas completadas.
     fun filterCompleted() {
-        // TODO
+
+       lista = repository.queryCompletedTasks()
+
+        _currentFilter.value = TasksActivityFilter.COMPLETED
+
+        _currentFilterMenuItemId.value = R.id.mnuFilterCompleted
+
+        _tasks.value = lista.sortedByDescending { it.id }
+
     }
 
     // Hace que se muestre en el RecyclerView sólo las tareas pendientes.
     fun filterPending() {
-        // TODO
+
+        lista = repository.queryPendingTasks()
+
+        _currentFilter.value = TasksActivityFilter.PENDING
+
+        _currentFilterMenuItemId.value = R.id.mnuFilterPending
+
+        _tasks.value = lista.sortedByDescending { it.id }
+
     }
 
     // Agrega una nueva tarea con dicho concepto. Si la se estaba mostrando
@@ -73,24 +113,54 @@ class TasksActivityViewModel(private val repository: Repository,
     // mostrar en el RecyclerView la lista con todas las tareas, no sólo
     // las completadas.
     fun addTask(concept: String) {
-        // TODO
+
+        repository.addTask(concept)
+
+        if (lista == repository.queryCompletedTasks()) {
+
+            filterAll()
+
+        }
+
+        else {
+
+            queryTasks(_currentFilter.value!!)
+
+        }
+
+
+
     }
 
     // Agrega la tarea
     fun insertTask(task: Task) {
-        // TODO
+
+        repository.insertTask(task)
+
+        queryTasks(_currentFilter.value!!)
     }
 
     // Borra la tarea
     fun deleteTask(task: Task) {
-        // TODO
+
+        repository.deleteTask(task.id)
+
+        queryTasks(_currentFilter.value!!)
+
     }
 
     // Borra todas las tareas mostradas actualmente en el RecyclerView.
     // Si no se estaba mostrando ninguna tarea, se muestra un mensaje
     // informativo en un SnackBar de que no hay tareas que borrar.
     fun deleteTasks() {
-        // TODO
+
+            var toDelete = _tasks.value!!.map { it.id }
+
+            repository.deleteTasks(toDelete)
+
+            queryTasks(_currentFilter.value!!)
+
+
     }
 
     // Marca como completadas todas las tareas mostradas actualmente en el RecyclerView,
@@ -98,7 +168,12 @@ class TasksActivityViewModel(private val repository: Repository,
     // Si no se estaba mostrando ninguna tarea, se muestra un mensaje
     // informativo en un SnackBar de que no hay tareas que marcar como completadas.
     fun markTasksAsCompleted() {
-        // TODO
+
+            var toComplete = _tasks.value!!.map { it.id }
+
+            repository.markTasksAsCompleted(toComplete)
+
+            queryTasks(_currentFilter.value!!)
     }
 
     // Marca como pendientes todas las tareas mostradas actualmente en el RecyclerView,
@@ -106,7 +181,12 @@ class TasksActivityViewModel(private val repository: Repository,
     // Si no se estaba mostrando ninguna tarea, se muestra un mensaje
     // informativo en un SnackBar de que no hay tareas que marcar como pendientes.
     fun markTasksAsPending() {
-        // TODO
+
+        var toPending = _tasks.value!!.map { it.id }
+
+        repository.markTasksAsPending(toPending)
+
+        queryTasks(_currentFilter.value!!)
     }
 
     // Hace que se envíe un Intent con la lista de tareas mostradas actualmente
@@ -114,24 +194,54 @@ class TasksActivityViewModel(private val repository: Repository,
     // Si no se estaba mostrando ninguna tarea, se muestra un Snackbar indicando
     // que no hay tareas que compartir.
     fun shareTasks() {
-        // TODO
+
+
+
     }
 
     // Actualiza el estado de completitud de la tarea recibida, atendiendo al
     // valor de isCompleted. Si es true la tarea es marcada como completada y
     // en caso contrario es marcada como pendiente.
     fun updateTaskCompletedState(task: Task, isCompleted: Boolean) {
-        // TODO
+
+        if (isCompleted) {
+
+            repository.markTaskAsCompleted(task.id)
+
+        }
+
+        else {
+
+            repository.markTaskAsPending(task.id)
+
+        }
+
+        queryTasks(_currentFilter.value!!)
+
     }
 
     // Retorna si el concepto recibido es válido (no es una cadena vacía o en blanco)
-    fun isValidConcept(concept: String): Boolean {
-        // TODO
-    }
+    fun isValidConcept(concept: String): Boolean = concept.isNotBlank()
 
     // Pide las tareas al repositorio, atendiendo al filtro recibido
     private fun queryTasks(filter: TasksActivityFilter) {
-        // TODO
+        if (filter == TasksActivityFilter.PENDING) {
+
+            filterPending()
+
+        }
+
+        else if (filter == TasksActivityFilter.COMPLETED) {
+
+            filterCompleted()
+
+        }
+
+        else {
+
+            filterAll()
+
+        }
     }
 
 }

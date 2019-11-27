@@ -19,24 +19,24 @@ interface Repository {
     // Agrega la tarea recibida a la fuente de datos
     fun insertTask(task: Task)
 
-    // Borra de la fuente de datos la tarea cuyo id corresponde con
+    // Borra de la fuente de datos la tarea cuyo iDs corresponde con
     // el recibido.
     fun deleteTask(taskId: Long)
-    // Borra de la fuente de datos todas las tareas cuyos id estén contenidos
+    // Borra de la fuente de datos todas las tareas cuyos iDs estén contenidos
     // en la lista recibida
     fun deleteTasks(taskIdList: List<Long>)
 
-    // Marca como completada en la fuente de datos la tarea cuyo id
+    // Marca como completada en la fuente de datos la tarea cuyo iDs
     // corresponde con el recibido. completedAt pasa a ser la fecha y hora actual.
     fun markTaskAsCompleted(taskId: Long)
     // Marca como completadas en la fuente de datos todas las tareas
-    // cuyos id estén contenidos en la lista recibida
+    // cuyos iDs estén contenidos en la lista recibida
     fun markTasksAsCompleted(taskIdList: List<Long>)
 
-    // Marca como pendiente la tarea cuyo id corresponde con
+    // Marca como pendiente la tarea cuyo iDs corresponde con
     // el recibido. completedAt pasa a ser cadena vacía.
     fun markTaskAsPending(taskId: Long)
-    // Marca como pendientes todas las tareas cuyos id estén contenidos
+    // Marca como pendientes todas las tareas cuyos iDs estén contenidos
     // en la lista recibida
     fun markTasksAsPending(taskIdList: List<Long>)
 
