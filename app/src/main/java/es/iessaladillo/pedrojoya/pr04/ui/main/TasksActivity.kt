@@ -145,7 +145,7 @@ class TasksActivity : AppCompatActivity() {
 
         setupViews()
 
-        observeTasks()
+        observe()
 
     }
 
@@ -186,9 +186,11 @@ class TasksActivity : AppCompatActivity() {
 
     }
 
-    private fun observeTasks() {
+    private fun observe() {
 
         viewModel.tasks.observe(this) { showTasks(it) }
+
+        viewModel.currentFilterMenuItemId.observe(this) {checkMenuItem(it)}
 
     }
 
@@ -250,7 +252,7 @@ class TasksActivity : AppCompatActivity() {
 
     private fun checkMenuItem(@MenuRes menuItemId: Int) {
         lstTasks.post {
-            val item = mnuFilter
+            val item = mnuFilter?.subMenu?.findItem(menuItemId)
             item?.let { menuItem ->
                 menuItem.isChecked = true
             }
